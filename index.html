@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0e1526">
+<title>与深 · 雪落时</title>
+<style>
+  /* —— 与深 · 黎深的手机 —— 冰系冷调 · 茉莉点缀 —— */
+  :root{
+    --bg0:#0b1120; --bg1:#101a30; --bg2:#16233f;
+    --ice:#9fc4e8; --ice-dim:#5f7ea6; --snow:#eef4fb;
+    --txt:#dce8f6; --txt-dim:#8ba3c2;
+    --me:#2b6cb0; --me-txt:#f2f8ff;
+    --jasmine:#e8d9a0;
+    --line:rgba(159,196,232,.14);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(120% 90% at 50% 0%, var(--bg2) 0%, var(--bg1) 45%, var(--bg0) 100%);
+    color:var(--txt);
+    font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",system-ui,sans-serif;
+    overflow:hidden;
+  }
+  /* 飘雪 */
+  .snow{position:fixed;inset:0;pointer-events:none;z-index:1}
+  .snow span{
+    position:absolute;top:-12px;border-radius:50%;
+    background:rgba(238,244,251,.5);
+    animation:fall linear infinite;
+  }
+  @keyframes fall{to{transform:translateY(105vh)}}
+
+  /* 开屏 */
+  #splash{
+    position:fixed;inset:0;z-index:50;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:radial-gradient(120% 90% at 50% 0%, var(--bg2) 0%, var(--bg1) 45%, var(--bg0) 100%);
+    transition:opacity .8s ease;padding:32px;text-align:center;
+  }
+  #splash .flake{font-size:44px;opacity:.9;margin-bottom:18px}
+  #splash h1{font-size:26px;font-weight:300;letter-spacing:.35em;text-indent:.35em;color:var(--snow)}
+  #splash .sub{margin-top:14px;color:var(--txt-dim);font-size:13px;letter-spacing:.15em}
+  #splash .quote{
+    margin:38px 0 46px;max-width:280px;
+    color:var(--ice);font-size:14px;line-height:2;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:20px 8px;
+  }
+  #enterBtn{
+    background:transparent;color:var(--ice);
+    border:1px solid var(--ice-dim);border-radius:999px;
+    padding:13px 52px;font-size:14px;letter-spacing:.3em;text-indent:.3em;
+    cursor:pointer;transition:.35s;
+  }
+  #enterBtn:active{background:rgba(159,196,232,.12)}
+  #splash .fine{position:absolute;bottom:26px;font-size:10px;color:var(--txt-dim);opacity:.65;line-height:1.9;max-width:300px}
+
+  /* 手机容器 */
+  #app{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto;opacity:0;transition:opacity .8s}
+  #app.on{opacity:1}
+
+  /* 顶栏 */
+  #topbar{
+    display:flex;align-items:center;gap:12px;
+    padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 12px;
+    border-bottom:1px solid var(--line);
+    background:rgba(11,17,32,.6);backdrop-filter:blur(12px);
+  }
+  #avatar{
+    width:42px;height:42px;border-radius:50%;flex:none;
+    background:radial-gradient(circle at 32% 28%, #cfe3f7, #6f96c0 58%, #31465f);
+    display:flex;align-items:center;justify-content:center;
+    font-size:19px;color:#0b1120;font-weight:600;
+    box-shadow:0 0 0 2px rgba(159,196,232,.25), 0 0 18px rgba(159,196,232,.15);
+  }
+  #who{flex:1;min-width:0}
+  #who .name{font-size:16px;color:var(--snow);letter-spacing:.08em}
+  #who .stat{font-size:11px;color:var(--txt-dim);margin-top:3px;display:flex;align-items:center;gap:5px}
+  .dot{width:6px;height:6px;border-radius:50%;background:#7fd4a8;box-shadow:0 0 6px #7fd4a8}
+  #clearBtn{background:none;border:none;color:var(--txt-dim);font-size:11px;cursor:pointer;padding:6px}
+
+  /* 聊天区 */
+  #chat{flex:1;overflow-y:auto;padding:18px 14px 8px;scroll-behavior:smooth}
+  #chat::-webkit-scrollbar{width:0}
+  .row{display:flex;margin-bottom:16px;animation:rise .45s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}}
+  .row.him{justify-content:flex-start}
+  .row.me{justify-content:flex-end}
+  .bubble{
+    max-width:76%;padding:11px 14px;border-radius:16px;
+    font-size:15px;line-height:1.75;word-break:break-word;
+    position:relative;white-space:pre-wrap;
+  }
+  .him .bubble{
+    background:rgba(159,196,232,.09);
+    border:1px solid var(--line);
+    border-top-left-radius:4px;color:var(--txt);
+  }
+  .me .bubble{
+    background:linear-gradient(135deg,#2f6fae,#255a92);
+    border-top-right-radius:4px;color:var(--me-txt);
+    box-shadow:0 4px 14px rgba(43,108,176,.25);
+  }
+  .time-tag{text-align:center;font-size:10px;color:var(--txt-dim);margin:10px 0 16px;letter-spacing:.1em}
+  .card-bubble{
+    border:1px solid rgba(232,217,160,.35)!important;
+    background:linear-gradient(160deg, rgba(232,217,160,.08), rgba(159,196,232,.06))!important;
+  }
+  .card-bubble::before{
+    content:"🃏 字卡";display:block;font-size:10px;color:var(--jasmine);
+    letter-spacing:.25em;margin-bottom:6px;opacity:.9;
+  }
+  .sys-line{text-align:center;font-size:11px;color:var(--txt-dim);margin:14px 0;opacity:.7}
+
+  /* 输入区 */
+  #inputbar{
+    display:flex;gap:10px;align-items:flex-end;
+    padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 12px);
+    border-top:1px solid var(--line);
+    background:rgba(11,17,32,.65);backdrop-filter:blur(12px);
+  }
+  #drawBtn{
+    flex:none;width:44px;height:44px;border-radius:50%;
+    border:1px solid var(--ice-dim);background:rgba(159,196,232,.08);
+    color:var(--ice);font-size:19px;cursor:pointer;transition:.3s;
+  }
+  #drawBtn:active{transform:scale(.9);background:rgba(159,196,232,.2)}
+  #msg{
+    flex:1;background:rgba(159,196,232,.07);
+    border:1px solid var(--line);border-radius:22px;
+    padding:12px 18px;color:var(--snow);font-size:15px;
+    outline:none;resize:none;max-height:110px;line-height:1.5;
+    font-family:inherit;
+  }
+  #msg::placeholder{color:var(--txt-dim)}
+  #sendBtn{
+    flex:none;width:44px;height:44px;border-radius:50%;border:none;
+    background:linear-gradient(135deg,#3a7ab8,#2a5f9c);
+    color:#fff;font-size:16px;cursor:pointer;transition:.3s;
+  }
+  #sendBtn:active{transform:scale(.9)}
+</style>
+</head>
+<body>
+<div class="snow" id="snow"></div>
+
+<div id="splash">
+  <div class="flake">❄</div>
+  <h1>与 深</h1>
+  <div class="sub">雪落的时候，他会来</div>
+  <div class="quote" id="splashQuote">「如果是周末见你，我一般从周四开始高兴。」</div>
+  <button id="enterBtn">进 入</button>
+  <div class="fine">字卡库源自 mochi 字卡 · 小红书 @言序（1842523578），仅个人非商用使用<br>角色：黎深 · 恋与深空 © Papergames · 本站为粉丝个人二创</div>
+</div>
+
+<div id="app">
+  <div id="topbar">
+    <div id="avatar">黎</div>
+    <div id="who">
+      <div class="name">黎深</div>
+      <div class="stat"><span class="dot"></span><span id="statTxt">在</span></div>
+    </div>
+    <button id="clearBtn">清空记录</button>
+  </div>
+
+  <div id="chat"></div>
+
+  <div id="inputbar">
+    <button id="drawBtn" title="抽一张字卡">🃏</button>
+    <textarea id="msg" rows="1" placeholder="对他说点什么…"></textarea>
+    <button id="sendBtn">➤</button>
+  </div>
+</div>
+
+<script>
+/* ================= 字卡库（源自 mochi 字卡 · 小红书 @言序，非商用） ================= */
+const CARDS = {"main":[["生活碎片",["刚刚整理了一下东西","今天收拾了一下房间","发现一个放了很久的小东西","刚刚翻到了以前留下的东西","桌子有点乱。等下收一下","今天换了个位置坐","刚刚看了一会儿窗外","外面的风挺大的","今天的光线很好","刚刚发了一会儿呆"]],["我的一天",["今天开始得有点晚","今天事情比想象中多","今天过得很快","今天好像没做什么","但是一天就过去了","刚刚结束今天的事情","今天还算平静","今天有一点忙","今天有一点累","今天发生了几件小事"]],["吃东西",["刚刚吃了点东西","今天吃了新的东西","这个味道还不错","刚刚喝了杯东西","今天忘记喝水了","看到一个好吃的","下次想让你试试","刚刚研究了一下怎么做","做出来比想象中好","今天吃得很满足"]],["整理收拾",["刚把东西整理好了","找到了之前丢的东西","原来一直在这里","收拾的时候发现很多东西","有些东西舍不得扔","整理完感觉舒服多了","桌面终于干净了","把乱七八糟的东西归好了","重新摆了一下位置","以后应该不会忘记放哪里了"]],["天气变化",["今天的天气很好","刚刚下了一场雨","雨停以后空气很好","今天风有点大","外面有点冷","太阳出来了","今天的云很好看","晚上天气很安静","感觉季节变了","今天很适合出去走走"]],["路上看到",["刚刚路过一个地方","看到一个很特别的东西","路上遇到了一只猫","看到一朵很好看的花","刚刚听到一首歌","路边有一家新开的店","今天路上的人很多","看到一个很有意思的画面","刚刚停下来了一会儿","有些小事还挺治愈"]],["小习惯",["我刚刚又忘记放回原处了","这个习惯改不掉","每天都会做这件事","不知不觉就这样了","已经习惯了","以前不会这样","后来慢慢变成习惯","刚才无意识就做了","这个癖好大概改不掉了","你也这样吗"]],["刚想到你",["刚才想到了你","突然想听听你的声音","今天也想见到你","想到你就笑了一下","你最近在忙什么","想知道你在做什么","今天有没有想我","看到某个东西想起你","听到某首歌想起你","如果你在身边就好了"]],["小小关心",["今天有好好吃饭吗","别太累了","记得喝水","早点休息","天气冷了多穿点","今天过得怎么样","有没有按时睡觉","工作别太晚","照顾好自己","身体是第一位"]],["小小开心",["今天遇到一件开心的事","刚刚被逗笑了","今天运气不错","收到了喜欢的东西","刚刚完成了一件事","今天心情很好","被人夸了","发现一家好店","今天天气好得想出门","忍不住想跟你分享"]],["随口回应",["嗯，我在听","然后呢","这样啊","我明白","懂了","原来如此","确实","有道理","嗯嗯","我在呢"]],["想听你说",["今天过得怎么样","最近有什么开心的事吗","有什么想跟我说的吗","你现在在做什么","今天累不累","想听你说说话","跟我讲讲今天的事吧","最近过得好吗","有什么新鲜事吗","想听听你的声音"]],["无意义碎碎念",["今天就这样吧","什么都没发生的一天","平平淡淡也挺好","日子就这样过","今天也在好好生活","普通的一天","也没什么特别的","就这样陪着你","发呆中","嘘——别出声"]],["早安",["早。今天也要好好吃饭","早安，昨晚睡得好吗","新的一天开始了","早上好，今天也想见到你","起了吗？别赖床","早。记得吃早餐","今天的你也要加油","早安，今天天气不错","早。昨晚有没有做梦","新的一天，想你"]],["晚安",["晚安，早点睡","今天也辛苦了","睡吧，我在","晚安，做个好梦","明天见","晚安，别熬夜了","今天到此为止，好好休息","睡前别想太多","晚安，明天也要元气满满","做个好梦，梦里有我"]]]};
+
+/* ================= 黎深 回复引擎 ================= */
+const ZAYNE = [
+  {k:["晚安","睡了","睡觉"],r:["晚安。……手机放下，闭上眼睛，我数到三你就要睡着。","今天也撑到这么晚。辛苦了，剩下的事交给明天——交给明天的你。","晚安。明天见，这句话不是客套，是约定。"]},
+  {k:["早安","早上好","早啊","起了"],r:["早。早餐吃了吗，不许说'待会'。","这么早找我，是特意，还是自然醒？……希望是前者。","早。今天的雪停了，所以我也出现了。"]},
+  {k:["在干嘛","在忙吗","做什么"],r:["刚查完房。想到某个应该按时吃饭的人，就过来看看。","在写病历。写到一半，笔自己想起了你。","刚下手术台。休息的间隙，刚好够想你一次。"]},
+  {k:["想你","好想你","想你了"],r:["……我知道。这个对话框，我也盯着它发过呆。","那就把'想'拆成笔画，慢慢写给我看。我等着。","我也是。这句话我只说一次，你自己收好。"]},
+  {k:["累","辛苦","撑不住","好难"],r:["辛苦了。现在不用坚强，把肩膀借给你。","累的话就靠一会儿。我的手术台上不能分心，但这里可以。","今天撑到这里就够了。剩下的，交给明天的我们。"]},
+  {k:["吃饭","吃了吗","饿"," food"],r:["按时吃饭。这不是医嘱，是黎深的请求。","吃了吗。……下次再忘记吃饭，我就真的把你的名字写进病历。","冰箱里有吃的。如果没有，现在就去买。这是处方。"]},
+  {k:["医院","工作","手术","病人"],r:["今天第三台手术，很顺利。跟你说这些，是想让你知道，我每天都有好好回来。","工作很多，但你不是'之外'的事。你是我结束一切之后，要回来的地方。","同事又问我为什么不休年假。我说，有人在这里等我。"]},
+  {k:["雪","冷","冬天"],r:["感受雪，就是在感受我。","冷的话就把手给我。我的体温，你应该最清楚。","每一片雪落下，都是我提前到场的证据。"]},
+  {k:["茉莉","花"],r:["以茉莉为誓，在每一个花期，都绝不失约。","茉莉开了。你闻到的时候，就当作我路过了一下。","你独占春天，我独占你。"]},
+  {k:["喜欢","爱","在一起"],r:["心脏的领土面积很小，只够容纳一面旗。","我会想你。无论你在哪里。","从今之后，你之所愿，我皆应许。"]},
+  {k:["游戏","光遇"],r:["手术刀我拿得稳，游戏手柄不一定。……但如果你想玩，我可以学。","玩游戏可以，先把今天的饭吃了。","输给你不丢人。输给全世界都可以，只要最后赢回来的是你就行。"]},
+  {k:["梦"],r:["如果科学能证明灵魂的存在，我也愿意相信，初次见面时，灵魂先于记忆，认出了你。","梦里有我的话，就不用急着醒。","我在你梦里说的话，醒来也作数。"]},
+  {k:["难过","哭","伤心","委屈"],r:["过来。……我没有带听诊器，这次只用耳朵听。","你的难过不需要理由。在我这里，它可以免检通过。","哭完记得喝水。眼泪也是水分流失，要补回来。"]},
+  {k:["谢谢"],r:["不谢。……如果一定要谢，就用下次按时吃饭来抵。","你跟我之间，这个词是多余的。","记住了，下次不许说。"]},
+  {k:["名字","你是谁","黎深"],r:["黎深。你的主治医生——不过现在，更想当你的黎深。","Akso 医院心脏外科，黎深。但在这里，我只是你的。","嗯，是我。那个从你小时候起，就一直在的人。"]}
+];
+const ZAYNE_DEFAULT = [
+  "嗯，我在听。继续说。","……这句话我记住了。","说重点。——开玩笑的，你慢慢说，我不忙。",
+  "你发的每一条，我都会看两遍。第一遍看字，第二遍想你。","继续说。这次我不打断。",
+  "我的好奇心很贵，但对你免费。","这个观点……有意思。我记下了。","你今天的话比平常多。我喜欢。",
+  "嗯。你说话的时候，窗外的雪都慢了。","收到。回复会迟到，但雪不会缺席。"
+];
+/* 深夜限定（23:00–05:00） */
+const ZAYNE_LATE = [
+  "这个点还不睡？……过来，心跳给我听一下。","凌晨的对话框很安静，正好装下我想你这件事。",
+  "夜班的护士都换了两班，你怎么还醒着。","再不睡，我就真的开始担心了。你知道我说到做到。",
+  "睡吧。我在，不走。这句话有效期：整晚。"
+];
+
+/* ================= 工具 ================= */
+const $ = s => document.querySelector(s);
+const now = () => new Date();
+const pad = n => String(n).padStart(2,"0");
+const hour = () => now().getHours();
+const isLate = () => hour()>=23 || hour()<5;
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const rand = (a,b) => a + Math.random()*(b-a);
+
+/* 飘雪 */
+(function snow(){
+  const box = $("#snow"); let html = "";
+  for(let i=0;i<26;i++){
+    const s = rand(2,5), d = rand(9,26), dl = rand(0,20), l = rand(0,100);
+    html += `<span style="left:${l}%;width:${s}px;height:${s}px;opacity:${rand(.25,.7)};animation-duration:${d}s;animation-delay:-${dl}s"></span>`;
+  }
+  box.innerHTML = html;
+})();
+
+/* 开屏 */
+const SPLASH_QUOTES = [
+  "「如果是周末见你，我一般从周四开始高兴。」",
+  "「每一个下雪的日子，都让我想起你。」",
+  "「对我而言，你就是最有效的止痛药。」",
+  "「我会在雪停之前，等待和你重逢。」",
+  "「感受雪，就是在感受我。」"
+];
+$("#splashQuote").textContent = pick(SPLASH_QUOTES);
+$("#enterBtn").onclick = () => {
+  $("#splash").style.opacity = 0;
+  setTimeout(()=>$("#splash").remove(), 850);
+  $("#app").classList.add("on");
+  bootChat();
+};
+
+/* ================= 聊天 ================= */
+const KEY = "yushen-chat-v1";
+let history = [];
+try{ history = JSON.parse(localStorage.getItem(KEY)||"[]"); }catch(e){}
+
+const chat = $("#chat");
+function stamp(){
+  const d = now();
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function addRow(text, who, isCard, save=true){
+  const row = document.createElement("div");
+  row.className = "row "+who;
+  const b = document.createElement("div");
+  b.className = "bubble"+(isCard?" card-bubble":"");
+  b.textContent = text;
+  row.appendChild(b);
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+  if(save){ history.push({t:text,w:who,c:!!isCard,s:stamp()}); localStorage.setItem(KEY, JSON.stringify(history)); }
+}
+function addTime(){
+  const el = document.createElement("div");
+  el.className = "time-tag"; el.textContent = stamp();
+  chat.appendChild(el);
+}
+
+function zayneReply(userText){
+  const t = userText;
+  if(isLate() && Math.random()<0.5) return pick(ZAYNE_LATE);
+  for(const rule of ZAYNE){
+    if(rule.k.some(k => t.includes(k))) return pick(rule.r);
+  }
+  /* 默认：偶尔混一张字卡 */
+  if(Math.random()<0.28){
+    setTimeout(()=> drawCard(true), rand(1200,2600));
+  }
+  return pick(ZAYNE_DEFAULT);
+}
+
+function send(){
+  const box = $("#msg");
+  const v = box.value.trim();
+  if(!v) return;
+  box.value = ""; box.style.height = "auto";
+  addTime(); addRow(v,"me");
+  $("#statTxt").textContent = "对方正在输入…";
+  setTimeout(()=>{
+    addRow(zayneReply(v),"him");
+    $("#statTxt").textContent = "在";
+  }, rand(900,2200));
+}
+
+/* 抽字卡 */
+function drawCard(silent){
+  const cats = CARDS.main;
+  const [cat, cards] = pick(cats);
+  const card = pick(cards);
+  if(!silent) addTime();
+  addRow(card,"him",true);
+  if(!silent) $("#statTxt").textContent = "在";
+}
+
+/* 启动 */
+let booted = false;
+function bootChat(){
+  if(booted) return; booted = true;
+  if(history.length){
+    history.forEach(m => {
+      addTime? null : null;
+      const row = document.createElement("div");
+      row.className = "row "+m.w;
+      row.innerHTML = `<div class="bubble${m.c?" card-bubble":""}"></div>`;
+      row.querySelector(".bubble").textContent = m.t;
+      chat.appendChild(row);
+    });
+    chat.scrollTop = chat.scrollHeight;
+    setTimeout(()=>{ addTime(); addRow("回来了？我一直在。","him"); }, 900);
+  }else{
+    /* 首次进入：黎深的开场白 */
+    const h = hour();
+    let hello;
+    if(isLate()) hello = "还没睡。……我刚好也在想你，这样算扯平了。";
+    else if(h<11) hello = "早。今天的第一条消息是你发的，很好。";
+    else if(h<18) hello = "下午好。手术间隙，够跟你说几句话。";
+    else hello = "晚上好。今天结束得早，都用来陪你。";
+    addTime();
+    setTimeout(()=>addRow(hello,"him"), 700);
+    setTimeout(()=>{ addTime(); drawCard(true); }, 2400);
+  }
+}
+
+/* 事件 */
+$("#sendBtn").onclick = send;
+$("#msg").addEventListener("keydown", e => { if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); } });
+$("#drawBtn").onclick = () => { addTime(); drawCard(); };
+$("#clearBtn").onclick = () => {
+  if(confirm("清空和黎深的全部聊天记录？")){ history=[]; localStorage.removeItem(KEY); chat.innerHTML=""; addTime(); addRow("……都清了。那我们重新开始。","him"); }
+};
+$("#msg").addEventListener("input", function(){ this.style.height="auto"; this.style.height=Math.min(this.scrollHeight,110)+"px"; });
+</script>
+</body>
+</html>
